@@ -7,162 +7,112 @@ const secondsDisplay = document.getElementById("seconds");
 const strtBtn = document.getElementById("start");
 const pauseBtn = document.getElementById("pause");
 const resetBtn = document.getElementById("reset");
-const focusmode = document.getElementById("focus");
-const shortmode = document.getElementById("short");
-const longmode = document.getElementById("long");
 const modes = document.querySelector(".modes");
 
-const req = {
-  workTime: 20,
-  timeLeft: null,
-  timerIntervel: null,
-  pause: null,
-  break: {
-    custom: null,
-    focus: 10 * 60,
-    short: 20,
-    long: 15 * 60,
-  },
-  active: 10 * 60,
-  updateWorkTime: function (time) {
-    this.workTime = time * 60;
-  },
-  updateTimeLeft: function () {
-    this.timeLeft = this.workTime;
-    this.updateBreak(this.timeLeft);
-  },
-  updateBreak: function (time) {
-    this.break.custom = time * 60;
-    console.log(this.break.custom);
-  },
-};
-
-req.updateTimeLeft();
-
-const updateDisplay = function () {
-  const minutesLeft = Math.floor(req.timeLeft / 60);
-  const secondsLeft = req.timeLeft % 60;
-  minutesDisplay.textContent = String(minutesLeft).padStart(2, "0");
-  secondsDisplay.textContent = String(secondsLeft).padStart(2, "0");
-};
-
-const changerBreak = function (brk) {
-  //   console.log(`Changed to ${brk} break`);
-  if (brk == "custom") {
-    req.active = req.break[brk];
-  } else {
-    req.active = req.break[brk];
-    console.log(req.active);
+class app {
+  constructor(workTime) {
+    this.init(workTime * 3);
+    this.mode = document.getElementById("focus");
+    this.curMode = "focus";
   }
-};
 
-///Timers functions///
-const timers = {
-  teaBreak(time) {
-    if (req.timerIntervel !== null) return;
-    console.log("break");
-    req.timeLeft = time;
-    req.pause = false;
-    pauseBtn.textContent = "Pause";
-    req.timerIntervel = setInterval(() => {
-      req.timeLeft -= 1;
-      if (req.timeLeft < 0) {
-        clearInterval(req.timerIntervel);
-        req.timerIntervel = null;
-        return;
-      }
+  init(workTime) {
+    this.workTime = workTime;
+    this.timeLeft = this.workTime;
+    this.timerIntervel = null;
+    this.pause = null;
+    this.curLap = 0;
+    this.totalLaps = 2;
+    this.modes = {
+      focus: this.workTime,
+      short: 5,
+      long: 10,
+    };
+    this.updateDisplay();
+  }
 
-      updateDisplay();
+  controller() {
+    if (this.curMode === "focus") {
+      this.curLap++;
+      this.changeMode(`${this.curLap < this.totalLaps ? "short" : "long"}`);
+      this.startTimer();
+    } else if (this.curMode === "short") {
+      this.changeMode(`focus`);
+      this.startTimer();
+    } else {
+      this.changeMode(`focus`);
+      this.init(this.workTime);
+    }
+  }
 
-      if (req.timeLeft === 0) {
-        clearInterval(req.timerIntervel);
-        req.timerIntervel = null;
-        alert("Breaks's up!");
-      }
-    }, 1000);
-  },
-  ///Start Timer///
+  updateDisplay() {
+    const minutesLeft = Math.floor(this.timeLeft / 60);
+    const secondsLeft = this.timeLeft % 60;
+    minutesDisplay.textContent = String(minutesLeft).padStart(2, "0");
+    secondsDisplay.textContent = String(secondsLeft).padStart(2, "0");
+  }
+  updateTimer(work) {
+    this.init(work);
+    this.updateDisplay();
+  }
+  changeMode(mode) {
+    console.log(`changing mode to ${mode}`);
+    this.mode.classList.remove("active");
+    this.curMode = mode;
+    this.mode = document.getElementById(`${mode}`);
+    this.mode.classList.add("active");
+    this.timeLeft = this.modes[mode];
+  }
+
   startTimer() {
-    if (req.timerIntervel !== null) return;
+    if (this.timerIntervel !== null) return;
     console.log("start");
-    req.pause = false;
+    this.pause = false;
     pauseBtn.textContent = "Pause";
-    req.timerIntervel = setInterval(() => {
-      req.timeLeft -= 1;
-      if (req.timeLeft < 0) {
-        clearInterval(req.timerIntervel);
-        req.timerIntervel = null;
+    this.timerIntervel = setInterval(() => {
+      this.timeLeft -= 1;
+      if (this.timeLeft < 0) {
+        clearInterval(this.timerIntervel);
+        this.timerIntervel = null;
         return;
       }
 
-      updateDisplay();
+      this.updateDisplay();
 
-      if (req.timeLeft === 0) {
-        clearInterval(req.timerIntervel);
-        req.timerIntervel = null;
-        alert("Time's up!");
-        this.teaBreak(req.active);
+      if (this.timeLeft === 0) {
+        clearInterval(this.timerIntervel);
+        this.timerIntervel = null;
+        this.controller();
       }
     }, 1000);
-  },
-
-  /// Pause,Resume Timer///
+  }
 
   pauseTimer() {
-    if (req.pause === null) return;
-    if (!req.pause) {
+    if (this.pause === null) return;
+    if (!this.pause) {
       console.log("paused");
-      clearInterval(req.timerIntervel);
-      req.timerIntervel = null;
+      clearInterval(this.timerIntervel);
+      this.timerIntervel = null;
       pauseBtn.textContent = "Resume";
-      req.pause = true;
+      this.pause = true;
     } else {
       console.log("Resumed");
       this.startTimer();
     }
-  },
-
-  ////Reset Timer///
+  }
 
   resetTimer() {
-    if (req.timerIntervel !== null || req.pause === true) {
+    if (this.timerIntervel !== null || this.pause === true) {
       console.log("reset");
-      clearInterval(req.timerIntervel);
-      req.timerIntervel = null;
-      req.pause = null;
       pauseBtn.textContent = "Pause";
+      clearInterval(this.timerIntervel);
+      this.changeMode("focus");
+      this.init(this.workTime);
     }
-    req.timeLeft = req.workTime;
-    // update UI
-    updateDisplay();
-  },
+  }
+}
 
-  ///Break system///
-};
-
-const init = function () {
-  req.updateTimeLeft();
-  updateDisplay();
-  strtBtn.addEventListener("click", timers.startTimer);
-  pauseBtn.addEventListener("click", timers.pauseTimer);
-  resetBtn.addEventListener("click", timers.resetTimer);
-  modes.addEventListener("click", function (e) {
-    if (e.target.id === "modes") return;
-    // console.log(document.querySelector(".active").id);
-    const curr = document.querySelector(".active").id;
-    if (e.target.id === curr) return;
-    document.querySelector(".active").classList.remove("active");
-    if (e.target.id === "focus") {
-      focusmode.classList.add("active");
-      changerBreak(e.target.id);
-    } else if (e.target.id === "short") {
-      shortmode.classList.add("active");
-      changerBreak(e.target.id);
-    } else if (e.target.id === "long") {
-      longmode.classList.add("active");
-      changerBreak(e.target.id);
-    }
-  });
-};
-init();
-//
+const pomodoro = new app(1);
+strtBtn.addEventListener("click", pomodoro.startTimer.bind(pomodoro));
+pauseBtn.addEventListener("click", pomodoro.pauseTimer.bind(pomodoro));
+resetBtn.addEventListener("click", pomodoro.resetTimer.bind(pomodoro));
