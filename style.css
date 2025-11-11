@@ -33,6 +33,18 @@ h1 {
   letter-spacing: 1px;
 }
 
+.btn {
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background: none;
+}
+
+.btn-icon {
+  color: #f05454;
+}
+
 /* ========== TIMER DISPLAY ========== */
 .timer {
   font-size: 5rem;
