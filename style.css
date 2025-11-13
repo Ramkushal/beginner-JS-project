@@ -6,43 +6,180 @@
 }
 
 body {
+  --background-fill: linear-gradient(135deg, #1e1e1e 0%, #3b2b2b 100%);
+  --container-bg: rgba(43, 43, 43, 0.92);
+  --accent-color: #f05454;
+  --accent-color-strong: #ff6b6b;
+  --accent-outline: rgba(240, 84, 84, 0.55);
+  --accent-glow: rgba(240, 84, 84, 0.2);
+  --text-color: #f1f1f1;
+  --subtext-color: #cacaca;
+
   font-family: "Poppins", sans-serif;
-  background-color: #1e1e1e;
-  color: #f1f1f1;
+  background: var(--background-fill);
+  color: var(--text-color);
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
+  transition: background 0.4s ease;
 }
 
 /* ========== MAIN CONTAINER ========== */
 .container {
   text-align: center;
-  background: #2b2b2b;
+  background: var(--container-bg);
   padding: 40px;
   border-radius: 20px;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
-  width: 380px;
-  max-width: 90%;
+  width: min(420px, 100%);
+  max-width: 100%;
+  margin: 32px;
+  position: relative;
+  backdrop-filter: blur(6px);
+  transition: background 0.4s ease, box-shadow 0.4s ease;
 }
 
 /* ========== HEADER ========== */
-h1 {
-  margin-bottom: 20px;
-  color: #f05454;
-  letter-spacing: 1px;
-}
-
-.btn {
-  width: 40px;
-  height: 40px;
+/* =========== SETTINGS BUTTON ========== */
+.settings-btn {
+  width: 36px;
+  height: 36px;
   border: none;
   border-radius: 50%;
   background: none;
+  cursor: pointer;
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.settings-btn:hover {
+  transform: scale(1.05);
+  background: rgba(0, 0, 0, 0.18);
 }
 
 .btn-icon {
-  color: #f05454;
+  color: var(--accent-color);
+}
+
+.settings-btn:focus-visible {
+  outline: 3px solid var(--accent-color);
+  outline-offset: 2px;
+}
+/* ============= HEADING ============= */
+h1 {
+  margin-bottom: 40px;
+  color: var(--accent-color);
+  letter-spacing: 1px;
+}
+
+/* ========== MODAL & OVERLAY ========== */
+.hidden {
+  display: none !important;
+}
+
+.settings-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  z-index: 1000;
+}
+
+.settings-modal {
+  background: #2f2f2f;
+  border-radius: 16px;
+  padding: 24px;
+  width: 100%;
+  max-width: 360px;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.45);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.settings-modal h2 {
+  margin-bottom: 8px;
+  color: var(--accent-color);
+  text-align: center;
+}
+
+#settings-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+#settings-form label {
+  font-size: 0.95rem;
+  text-align: left;
+}
+
+#settings-form input {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #3b3b3b;
+  color: #fff;
+  font-size: 1rem;
+}
+
+#settings-form input:focus {
+  outline: 2px solid var(--accent-outline);
+}
+
+.settings-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.settings-actions button {
+  padding: 8px 18px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+#settings-cancel {
+  background: transparent;
+  color: #f1f1f1;
+  border: 1px solid rgba(241, 241, 241, 0.3);
+}
+
+#settings-cancel:hover {
+  border-color: rgba(241, 241, 241, 0.6);
+}
+
+.settings-actions button[type="submit"] {
+  background: var(--accent-color);
+  color: #fff;
+}
+
+.settings-actions button[type="submit"]:hover {
+  background: var(--accent-color-strong);
+}
+
+.settings-actions button:focus-visible {
+  outline: 3px solid var(--accent-color-strong);
+  outline-offset: 2px;
+}
+
+.container.blurred {
+  filter: blur(6px);
+  pointer-events: none;
+  user-select: none;
 }
 
 /* ========== TIMER DISPLAY ========== */
@@ -58,7 +195,7 @@ h1 {
 }
 
 .controls button {
-  background: #f05454;
+  background: var(--accent-color);
   color: white;
   border: none;
   padding: 10px 20px;
@@ -70,7 +207,12 @@ h1 {
 }
 
 .controls button:hover {
-  background: #ff6b6b;
+  background: var(--accent-color-strong);
+}
+
+.controls button:focus-visible {
+  outline: 3px solid var(--accent-color-strong);
+  outline-offset: 2px;
 }
 
 /* ========== MODE BUTTONS ========== */
@@ -90,13 +232,13 @@ h1 {
 }
 
 .modes button.active {
-  color: #f05454;
-  border-color: #f05454;
+  color: var(--accent-color);
+  border-color: var(--accent-color);
   font-weight: 600;
 }
 
 .modes button:hover {
-  color: #f05454;
+  color: var(--accent-color);
 }
 
 /* ========== TASK LIST ========== */
@@ -107,7 +249,7 @@ h1 {
 
 .task-section h2 {
   font-size: 1.2rem;
-  color: #f05454;
+  color: var(--accent-color);
   margin-bottom: 10px;
 }
 
@@ -122,10 +264,63 @@ h1 {
   padding: 8px 10px;
   border-radius: 8px;
   transition: background 0.2s ease;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
 }
 
 #task-list li:hover {
   background: #444;
+}
+
+.task-text {
+  flex: 1;
+  word-break: break-word;
+}
+
+.task-buttons {
+  display: none;
+  gap: 5px;
+  margin-left: 10px;
+}
+
+#task-list li:hover .task-buttons {
+  display: flex;
+}
+
+.task-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  opacity: 0.7;
+}
+
+.task-btn:hover {
+  opacity: 1;
+  background: var(--accent-glow);
+  transform: scale(1.1);
+}
+
+.task-btn:focus-visible {
+  outline: 3px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
+.edit-btn:hover {
+  background: rgba(87, 84, 240, 0.3);
+}
+
+.delete-btn:hover {
+  background: rgba(255, 0, 0, 0.3);
+}
+
+.complete-btn:hover {
+  background: rgba(127, 170, 127, 0.3);
 }
 
 /* Add new task input */
@@ -143,8 +338,12 @@ h1 {
   color: #aaa;
 }
 
+#new-task:focus-visible {
+  outline: 3px solid var(--accent-outline);
+}
+
 #add-task {
-  background: #f05454;
+  background: var(--accent-color);
   color: #fff;
   border: none;
   border-radius: 8px;
@@ -154,22 +353,241 @@ h1 {
 }
 
 #add-task:hover {
-  background: #ff6b6b;
+  background: var(--accent-color-strong);
+}
+
+.completed-btn {
+  margin: 20px auto 0;
+  background: transparent;
+  color: #f1f1f1;
+  border: 1px solid rgba(241, 241, 241, 0.35);
+  border-radius: 10px;
+  padding: 10px 18px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.completed-btn:hover {
+  border-color: rgba(241, 241, 241, 0.6);
+  background: rgba(240, 84, 84, 0.15);
+}
+
+.completed-btn:focus-visible {
+  outline: 3px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
+.completed-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  z-index: 1100;
+}
+
+.completed-modal {
+  background: #2f2f2f;
+  border-radius: 16px;
+  padding: 20px;
+  width: 100%;
+  max-width: 360px;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.45);
+  max-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.completed-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.completed-modal-header h2 {
+  color: #f05454;
+}
+
+#completed-close {
+  background: transparent;
+  border: none;
+  color: #f1f1f1;
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  line-height: 1;
+}
+
+#completed-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+#completed-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+}
+
+#completed-list li {
+  background: #3b3b3b;
+  padding: 10px 12px;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 0.95rem;
+}
+
+#completed-list li.completed-empty {
+  background: transparent;
+  color: #bbb;
+  text-align: center;
+  border: 1px dashed rgba(255, 255, 255, 0.15);
+  padding: 16px;
 }
 
 /* ========== FOOTER ========== */
 footer {
   margin-top: 25px;
   font-size: 0.9rem;
-  color: #888;
+  color: var(--subtext-color);
   text-align: center;
 }
 
 footer a {
-  color: #f05454;
+  color: var(--accent-color);
   text-decoration: none;
 }
 
 footer a:hover {
   text-decoration: underline;
+}
+
+footer a:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
+/* ========== THEME STATES ========== */
+body.focus-theme {
+  --background-fill: linear-gradient(135deg, #1e1e1e 0%, #3b2b2b 100%);
+  --container-bg: rgba(43, 43, 43, 0.92);
+  --accent-color: #f05454;
+  --accent-color-strong: #ff6b6b;
+  --accent-outline: rgba(240, 84, 84, 0.55);
+  --accent-glow: rgba(240, 84, 84, 0.2);
+}
+
+body.short-theme {
+  --background-fill: linear-gradient(135deg, #152932 0%, #1c474b 100%);
+  --container-bg: rgba(33, 55, 60, 0.9);
+  --accent-color: #4ecdc4;
+  --accent-color-strong: #6cf2e9;
+  --accent-outline: rgba(78, 205, 196, 0.55);
+  --accent-glow: rgba(78, 205, 196, 0.2);
+}
+
+body.long-theme {
+  --background-fill: linear-gradient(135deg, #211f3a 0%, #392b63 100%);
+  --container-bg: rgba(45, 41, 71, 0.9);
+  --accent-color: #9b5de5;
+  --accent-color-strong: #c29bff;
+  --accent-outline: rgba(155, 93, 229, 0.55);
+  --accent-glow: rgba(155, 93, 229, 0.2);
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 768px) {
+  body {
+    padding: 16px;
+    align-items: flex-start;
+  }
+
+  .container {
+    margin: 16px auto;
+    padding: 32px 24px 28px;
+    width: 100%;
+  }
+
+  .settings-btn {
+    top: 18px;
+    right: 18px;
+  }
+
+  .timer {
+    font-size: 4rem;
+  }
+
+  .controls {
+    margin-top: 20px;
+  }
+
+  .controls button {
+    width: 100%;
+    margin: 6px 0;
+  }
+
+  .modes {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .modes button {
+    margin: 0;
+    width: 100%;
+  }
+
+  #new-task {
+    width: 100%;
+    margin: 10px 0 8px;
+  }
+
+  #add-task {
+    width: 100%;
+  }
+
+  .completed-btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 28px 18px 24px;
+    border-radius: 16px;
+  }
+
+  .settings-btn {
+    top: 14px;
+    right: 14px;
+  }
+
+  h1 {
+    font-size: 1.6rem;
+    margin-top: 28px;
+    margin-bottom: 24px;
+  }
+
+  .timer {
+    font-size: 3.2rem;
+  }
+
+  .task-section h2 {
+    font-size: 1.05rem;
+  }
+
+  footer {
+    font-size: 0.85rem;
+  }
 }

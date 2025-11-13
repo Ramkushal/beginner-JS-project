@@ -12,9 +12,15 @@
     <script type="module" src="script.js"></script>
   </head>
   <body>
-    <div class="container">
-      <h1>Pomodoro Timer</h1>
-      <button class="btn">
+    <main class="container" role="main">
+      <button
+        class="settings-btn"
+        type="button"
+        aria-label="Open timer settings"
+        aria-haspopup="dialog"
+        aria-controls="settings-overlay"
+        aria-expanded="false"
+      >
         <svg
           class="btn-icon"
           xmlns="http://www.w3.org/2000/svg"
@@ -36,40 +42,134 @@
           />
         </svg>
       </button>
+
+      <h1>Pomodoro Timer</h1>
+
       <!-- Timer Display -->
-      <div class="timer">
+      <div class="timer" role="timer" aria-live="polite" aria-atomic="true">
         <span id="minutes">25</span>:<span id="seconds">00</span>
       </div>
 
       <!-- Timer Controls -->
       <div class="controls">
-        <button id="start">Start</button>
-        <button id="pause">Pause</button>
-        <button id="reset">Reset</button>
+        <button id="start" type="button">Start</button>
+        <button id="pause" type="button">Pause</button>
+        <button id="reset" type="button">Reset</button>
       </div>
 
       <!-- Mode Selection -->
-      <div class="modes">
-        <button id="focus" class="active">Focus</button>
-        <button id="short">Short Break</button>
-        <button id="long">Long Break</button>
+      <div class="modes" role="group" aria-label="Timer modes">
+        <button id="focus" class="active" type="button" aria-pressed="true">
+          Focus
+        </button>
+        <button id="short" type="button" aria-pressed="false">
+          Short Break
+        </button>
+        <button id="long" type="button" aria-pressed="false">Long Break</button>
       </div>
 
       <!-- Optional task list (you can connect to backend later) -->
       <div class="task-section">
         <h2>Your Tasks</h2>
-        <ul id="task-list">
-          <li>Example task 2</li>
-          <li>Example task 1</li>
-        </ul>
-        <input type="text" id="new-task" placeholder="Add a new task..." />
-        <button id="add-task">Add Task</button>
+        <ul id="task-list" aria-live="polite"></ul>
+        <input
+          type="text"
+          id="new-task"
+          placeholder="Add a new task..."
+          aria-label="Add a new task"
+        />
+        <button id="add-task" type="button">Add Task</button>
       </div>
+      <button
+        id="show-completed"
+        class="completed-btn"
+        type="button"
+        aria-haspopup="dialog"
+        aria-controls="completed-overlay"
+        aria-expanded="false"
+      >
+        Completed Tasks
+      </button>
 
       <!-- Footer -->
       <footer>
-        <p>Built with ❤️ by <a href="#">Your Name</a></p>
+        <p>Built with ❤️ by <a href="#">Ram Kushal</a></p>
       </footer>
+    </main>
+    <div
+      class="settings-overlay hidden"
+      id="settings-overlay"
+      aria-hidden="true"
+    >
+      <div
+        class="settings-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="settings-title"
+      >
+        <h2 id="settings-title">Timer Settings</h2>
+        <form id="settings-form">
+          <label for="focus-duration">Focus (minutes)</label>
+          <input
+            type="number"
+            id="focus-duration"
+            name="focus"
+            min="1"
+            step="1"
+            required
+          />
+
+          <label for="short-break">Short Break (minutes)</label>
+          <input
+            type="number"
+            id="short-break"
+            name="short"
+            min="1"
+            step="1"
+            required
+          />
+
+          <label for="long-break">Long Break (minutes)</label>
+          <input
+            type="number"
+            id="long-break"
+            name="long"
+            min="1"
+            step="1"
+            required
+          />
+
+          <div class="settings-actions">
+            <button type="button" id="settings-cancel">Cancel</button>
+            <button type="submit">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div
+      class="completed-overlay hidden"
+      id="completed-overlay"
+      aria-hidden="true"
+      role="presentation"
+    >
+      <div
+        class="completed-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="completed-title"
+      >
+        <div class="completed-modal-header">
+          <h2 id="completed-title">Completed Tasks</h2>
+          <button
+            type="button"
+            id="completed-close"
+            aria-label="Close completed tasks"
+          >
+            ✖️
+          </button>
+        </div>
+        <ul id="completed-list" aria-live="polite"></ul>
+      </div>
     </div>
   </body>
 </html>
