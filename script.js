@@ -19,10 +19,14 @@ const settingsCancelBtn = document.getElementById("settings-cancel");
 const focusInput = document.getElementById("focus-duration");
 const shortInput = document.getElementById("short-break");
 const longInput = document.getElementById("long-break");
+const lapsInput = document.getElementById("laps-settings");
 const completedTasksBtn = document.getElementById("show-completed");
 const completedOverlay = document.getElementById("completed-overlay");
 const completedCloseBtn = document.getElementById("completed-close");
 const completedList = document.getElementById("completed-list");
+const clearCompletedBtn = document.getElementById("clear-completed");
+const laps = document.getElementById("laps");
+const lapsText = document.getElementById("laps-text");
 
 let previouslyFocusedElement = null;
 
@@ -115,49 +119,55 @@ function syncModeButtonState(activeMode) {
 syncModeButtonState("focus");
 
 class app {
-  constructor(workTime) {
+  constructor() {
     this.tasks = [];
     this.completedTasks = [];
     this.modes = null;
     this.themeRoot = document.body;
-    this.init(workTime * 60);
-    this.mode = document.getElementById("focus");
+    this.totalLaps = 2;
+    this.loaded = this.loadState();
+    if (!this.loaded) this.init(25 * 60, 5 * 60, 15 * 60, 2);
+    // this.mode = document.getElementById("focus");
     this.curMode = "focus";
     this.updateTheme();
-    this.loadState();
   }
 
-  init(workTime) {
+  init(workTime, shortbreak, longbreak, lap) {
     this.workTime = workTime;
     this.timeLeft = this.workTime;
-    this.timerIntervel = null;
+    this.timerInterval = null;
     this.pause = null;
-    this.curLap = 0;
-    this.totalLaps = 2;
-    if (!this.modes) {
-      this.modes = {
-        focus: this.workTime,
-        short: 5 * 60,
-        long: 15 * 60,
-      };
-    } else {
-      this.modes.focus = this.workTime;
-    }
+    this.curLap = 1;
+    this.totalLaps = lap;
+    this.modes = {
+      focus: workTime,
+      short: shortbreak,
+      long: longbreak,
+    };
+    this.changeMode("focus");
     this.updateDisplay();
+    setControlsState("idle");
+    laps.classList.add("hidden");
   }
 
   controller() {
     if (this.curMode === "focus") {
-      this.curLap++;
-      this.changeMode(`${this.curLap < this.totalLaps ? "short" : "long"}`);
+      this.changeMode(
+        `${this.curLap + 1 <= this.totalLaps ? "short" : "long"}`
+      );
       this.startTimer();
     } else if (this.curMode === "short") {
+      this.curLap++;
       this.changeMode(`focus`);
       this.startTimer();
     } else {
-      this.changeMode(`focus`);
-      this.init(this.workTime);
-      setControlsState("idle");
+      this.init(
+        this.workTime,
+        this.modes.short,
+        this.modes.long,
+        this.totalLaps
+      );
+      // setControlsState("idle");
     }
   }
 
@@ -167,15 +177,11 @@ class app {
     minutesDisplay.textContent = String(minutesLeft).padStart(2, "0");
     secondsDisplay.textContent = String(secondsLeft).padStart(2, "0");
   }
-  updateTimer(work) {
-    this.init(work);
-    this.updateDisplay();
-  }
 
   changeMode(mode) {
     console.log(`changing mode to ${mode}`);
     this.curMode = mode;
-    this.mode = document.getElementById(`${mode}`);
+    // this.mode = document.getElementById(`${mode}`);
     syncModeButtonState(mode);
     this.timeLeft = this.modes[mode];
     this.updateTheme();
@@ -256,6 +262,7 @@ class app {
       .filter((task) => task.text.length > 0);
 
     let hasSavedTasks = false;
+    let hasSavedSettings = false;
 
     try {
       const tasksRaw = localStorage.getItem(STORAGE_KEYS.tasks);
@@ -294,6 +301,7 @@ class app {
       }
 
       const completedRaw = localStorage.getItem(STORAGE_KEYS.completed);
+
       if (completedRaw) {
         const parsedCompleted = JSON.parse(completedRaw);
         if (Array.isArray(parsedCompleted)) {
@@ -331,10 +339,11 @@ class app {
 
       const settingsRaw = localStorage.getItem(STORAGE_KEYS.settings);
       if (settingsRaw) {
+        hasSavedSettings = true;
         const parsedSettings = JSON.parse(settingsRaw);
         if (
           parsedSettings &&
-          ["focus", "short", "long"].every(
+          ["focus", "short", "long", "laps"].every(
             (key) =>
               typeof parsedSettings[key] === "number" && parsedSettings[key] > 0
           )
@@ -350,6 +359,7 @@ class app {
 
     this.renderTasks();
     this.renderCompletedTasks();
+    return hasSavedSettings;
   }
 
   updateTaskText(taskId, newText) {
@@ -359,20 +369,27 @@ class app {
     this.saveTasks();
   }
 
-  applySettings({ focus, short, long }) {
+  applySettings({ focus, short, long, laps }) {
     const focusSeconds = focus * 60;
     const shortSeconds = short * 60;
     const longSeconds = long * 60;
 
-    if (focusSeconds <= 0 || shortSeconds <= 0 || longSeconds <= 0) {
+    if (
+      focusSeconds <= 0 ||
+      shortSeconds <= 0 ||
+      longSeconds <= 0 ||
+      laps <= 0
+    ) {
       throw new Error("Timer values must be greater than zero.");
     }
 
-    this.saveSettings({ focus, short, long });
-    clearInterval(this.timerIntervel);
-    this.timerIntervel = null;
+    this.saveSettings({ focus, short, long, laps });
+    clearInterval(this.timerInterval);
+    // this.init(focusSeconds, shortSeconds, longSeconds, laps);
+    this.timerInterval = null;
     this.pause = null;
-    this.curLap = 0;
+    this.totalLaps = laps;
+    this.curLap = 1;
     this.workTime = focusSeconds;
     this.modes = {
       focus: focusSeconds,
@@ -386,24 +403,27 @@ class app {
   }
 
   startTimer() {
-    if (this.timerIntervel !== null) return;
+    if (this.timerInterval !== null) return;
     setControlsState("running");
     console.log("start");
+    console.log(this.curLap);
+    laps.classList.remove("hidden");
+    lapsText.textContent = `${this.curLap}/${this.totalLaps} Lap`;
     this.pause = false;
     pauseBtn.textContent = "Pause";
-    this.timerIntervel = setInterval(() => {
+    this.timerInterval = setInterval(() => {
       this.timeLeft -= 1;
       if (this.timeLeft < 0) {
-        clearInterval(this.timerIntervel);
-        this.timerIntervel = null;
+        clearInterval(this.timerInterval);
+        this.timerInterval = null;
         return;
       }
 
       this.updateDisplay();
 
       if (this.timeLeft === 0) {
-        clearInterval(this.timerIntervel);
-        this.timerIntervel = null;
+        clearInterval(this.timerInterval);
+        this.timerInterval = null;
         this.controller();
       }
     }, 1000);
@@ -413,8 +433,8 @@ class app {
     if (this.pause === null) return;
     if (!this.pause) {
       console.log("paused");
-      clearInterval(this.timerIntervel);
-      this.timerIntervel = null;
+      clearInterval(this.timerInterval);
+      this.timerInterval = null;
       pauseBtn.textContent = "Resume";
       this.pause = true;
     } else {
@@ -423,15 +443,22 @@ class app {
     }
   }
 
+  resumeTimer() {}
+
   resetTimer() {
     console.log("reset");
     pauseBtn.textContent = "Pause";
-    clearInterval(this.timerIntervel);
-    this.timerIntervel = null;
-    this.pause = null;
-    this.changeMode("focus");
-    this.init(this.workTime);
-    setControlsState("idle");
+    clearInterval(this.timerInterval);
+    // this.timerInterval = null;
+    // this.pause = null;
+    // this.changeMode("focus");
+    this.init(
+      this.modes.focus,
+      this.modes.short,
+      this.modes.long,
+      this.totalLaps
+    );
+    // setControlsState("idle");
   }
 
   addTask() {
@@ -537,24 +564,25 @@ class app {
   }
 
   handleModeSelection(mode) {
-    if (!this.modes || !this.modes[mode]) return;
-    if (this.curMode === mode && this.timerIntervel === null && !this.pause) {
+    // if (!this.modes || !this.modes[mode]) return;
+    if (this.curMode === mode) return;
+    if (this.curMode === mode && this.timerInterval === null && !this.pause) {
       return;
     }
 
-    clearInterval(this.timerIntervel);
-    this.timerIntervel = null;
+    clearInterval(this.timerInterval);
+    this.timerInterval = null;
     this.pause = null;
     pauseBtn.textContent = "Pause";
     if (mode === "focus") {
-      this.curLap = 0;
+      this.curLap = 1;
     }
     this.changeMode(mode);
     setControlsState("idle");
   }
 }
 
-const pomodoro = new app(2);
+const pomodoro = new app();
 strtBtn.addEventListener("click", pomodoro.startTimer.bind(pomodoro));
 pauseBtn.addEventListener("click", pomodoro.pauseTimer.bind(pomodoro));
 resetBtn.addEventListener("click", pomodoro.resetTimer.bind(pomodoro));
@@ -609,6 +637,7 @@ function openSettingsModal() {
   focusInput.value = Math.round(pomodoro.modes.focus / 60);
   shortInput.value = Math.round(pomodoro.modes.short / 60);
   longInput.value = Math.round(pomodoro.modes.long / 60);
+  lapsInput.value = Math.round(pomodoro.totalLaps);
   previouslyFocusedElement = document.activeElement;
   applyOverlayBlur();
   settingsOverlay.classList.remove("hidden");
@@ -647,11 +676,21 @@ settingsForm.addEventListener("submit", (event) => {
   const focusMinutes = parseInt(focusInput.value, 10);
   const shortMinutes = parseInt(shortInput.value, 10);
   const longMinutes = parseInt(longInput.value, 10);
+  const laps = parseInt(lapsInput.value, 10);
 
   if (
     Number.isNaN(focusMinutes) ||
     Number.isNaN(shortMinutes) ||
-    Number.isNaN(longMinutes)
+    Number.isNaN(longMinutes) ||
+    Number.isNaN(laps) ||
+    focusMinutes <= 0 ||
+    shortMinutes <= 0 ||
+    longMinutes <= 0 ||
+    laps <= 0 ||
+    focusMinutes > 120 ||
+    shortMinutes > 20 ||
+    longMinutes > 60 ||
+    laps > 10
   ) {
     alert("Please enter valid numeric values for all timers.");
     return;
@@ -662,6 +701,7 @@ settingsForm.addEventListener("submit", (event) => {
       focus: focusMinutes,
       short: shortMinutes,
       long: longMinutes,
+      laps: laps,
     });
     closeSettingsModal();
   } catch (error) {
@@ -670,6 +710,7 @@ settingsForm.addEventListener("submit", (event) => {
 });
 
 // Completed tasks modal logic
+
 function openCompletedModal() {
   pomodoro.renderCompletedTasks();
   previouslyFocusedElement = document.activeElement;
@@ -678,6 +719,12 @@ function openCompletedModal() {
   completedOverlay.setAttribute("aria-hidden", "false");
   completedTasksBtn.setAttribute("aria-expanded", "true");
   completedCloseBtn.focus();
+}
+
+function clearCompletedTasks() {
+  pomodoro.completedTasks = [];
+  pomodoro.renderCompletedTasks();
+  localStorage.setItem(STORAGE_KEYS.completed, JSON.stringify([]));
 }
 
 function closeCompletedModal() {
@@ -696,6 +743,7 @@ function closeCompletedModal() {
 
 completedTasksBtn.addEventListener("click", openCompletedModal);
 completedCloseBtn.addEventListener("click", closeCompletedModal);
+clearCompletedBtn.addEventListener("click", clearCompletedTasks);
 
 completedOverlay.addEventListener("click", (event) => {
   if (event.target === completedOverlay) {

@@ -19,6 +19,7 @@ body {
   background: var(--background-fill);
   color: var(--text-color);
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   height: 100vh;
@@ -33,14 +34,35 @@ body {
   border-radius: 20px;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
   width: min(420px, 100%);
-  max-width: 100%;
+  /* max-width: 100%; */
   margin: 32px;
   position: relative;
   backdrop-filter: blur(6px);
   transition: background 0.4s ease, box-shadow 0.4s ease;
 }
 
-/* ========== HEADER ========== */
+/* ============= HEADING ============= */
+.main-heading {
+  font-size: 2rem;
+  font-weight: 600;
+  margin-top: 20px;
+  margin-bottom: 10px;
+  color: var(--accent-color);
+  letter-spacing: 1px;
+  text-align: center;
+  text-transform: uppercase;
+  text-shadow: 0 0 10px rgba(240, 84, 84, 0.3);
+  width: min(420px, 100%);
+}
+
+/* ======== LAPS ======== */
+.laps {
+  font-size: 1rem;
+  font-weight: 500;
+  margin-bottom: 10px;
+  letter-spacing: 1px;
+}
+
 /* =========== SETTINGS BUTTON ========== */
 .settings-btn {
   width: 36px;
@@ -70,12 +92,6 @@ body {
 .settings-btn:focus-visible {
   outline: 3px solid var(--accent-color);
   outline-offset: 2px;
-}
-/* ============= HEADING ============= */
-h1 {
-  margin-bottom: 40px;
-  color: var(--accent-color);
-  letter-spacing: 1px;
 }
 
 /* ========== MODAL & OVERLAY ========== */
@@ -130,6 +146,7 @@ h1 {
   background: #3b3b3b;
   color: #fff;
   font-size: 1rem;
+  margin-bottom: 20px;
 }
 
 #settings-form input:focus {
@@ -456,6 +473,20 @@ h1 {
   padding: 16px;
 }
 
+#clear-completed {
+  background: var(--accent-color);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 15px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+#clear-completed:hover {
+  background: var(--accent-color-strong);
+}
+
 /* ========== FOOTER ========== */
 footer {
   margin-top: 25px;
@@ -573,11 +604,11 @@ body.long-theme {
     right: 14px;
   }
 
-  h1 {
+  /* h1 {
     font-size: 1.6rem;
     margin-top: 28px;
     margin-bottom: 24px;
-  }
+  } */
 
   .timer {
     font-size: 3.2rem;

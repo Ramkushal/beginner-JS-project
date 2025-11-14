@@ -12,7 +12,10 @@
     <script type="module" src="script.js"></script>
   </head>
   <body>
+    <h1 class="main-heading">Pomodoro Timer</h1>
+
     <main class="container" role="main">
+      <div class="laps hidden" id="laps"><span id="laps-text">1/2</span></div>
       <button
         class="settings-btn"
         type="button"
@@ -28,7 +31,6 @@
           viewBox="0 0 24 24"
           stroke-width="1.5"
           stroke="currentColor"
-          class="size-6"
         >
           <path
             stroke-linecap="round"
@@ -42,8 +44,6 @@
           />
         </svg>
       </button>
-
-      <h1>Pomodoro Timer</h1>
 
       <!-- Timer Display -->
       <div class="timer" role="timer" aria-live="polite" aria-atomic="true">
@@ -139,6 +139,16 @@
             required
           />
 
+          <label for="laps-settings">Laps</label>
+          <input
+            type="number"
+            id="laps-settings"
+            name="laps"
+            min="1"
+            step="1"
+            required
+          />
+
           <div class="settings-actions">
             <button type="button" id="settings-cancel">Cancel</button>
             <button type="submit">Save</button>
@@ -156,7 +166,7 @@
         class="completed-modal"
         role="dialog"
         aria-modal="true"
-        aria-labelledby="completed-title"
+        aria-labelledby="completed-tasks"
       >
         <div class="completed-modal-header">
           <h2 id="completed-title">Completed Tasks</h2>
@@ -169,6 +179,13 @@
           </button>
         </div>
         <ul id="completed-list" aria-live="polite"></ul>
+        <button
+          type="button"
+          id="clear-completed"
+          aria-label="Clear completed tasks"
+        >
+          <span>Clear completed tasks 🗑️</span>
+        </button>
       </div>
     </div>
   </body>
