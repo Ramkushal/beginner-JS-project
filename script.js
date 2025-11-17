@@ -27,6 +27,8 @@ const completedList = document.getElementById("completed-list");
 const clearCompletedBtn = document.getElementById("clear-completed");
 const laps = document.getElementById("laps");
 const lapsText = document.getElementById("laps-text");
+const longBreakAudio = new Audio("./longbreak.mp3");
+const shortBreakAudio = new Audio("./shortBreak.mp3");
 
 let previouslyFocusedElement = null;
 
@@ -155,19 +157,21 @@ class app {
       this.changeMode(
         `${this.curLap + 1 <= this.totalLaps ? "short" : "long"}`
       );
+      shortBreakAudio.play();
       this.startTimer();
-    } else if (this.curMode === "short") {
+    } else if (this.curMode === "short" && this.curLap + 1 <= this.totalLaps) {
       this.curLap++;
       this.changeMode(`focus`);
+      shortBreakAudio.play();
       this.startTimer();
     } else {
+      longBreakAudio.play();
       this.init(
         this.workTime,
         this.modes.short,
         this.modes.long,
         this.totalLaps
       );
-      // setControlsState("idle");
     }
   }
 
@@ -181,7 +185,6 @@ class app {
   changeMode(mode) {
     console.log(`changing mode to ${mode}`);
     this.curMode = mode;
-    // this.mode = document.getElementById(`${mode}`);
     syncModeButtonState(mode);
     this.timeLeft = this.modes[mode];
     this.updateTheme();
@@ -199,6 +202,7 @@ class app {
     try {
       localStorage.setItem(STORAGE_KEYS.tasks, JSON.stringify(this.tasks));
     } catch (error) {
+      alert(error);
       console.error("Failed to save tasks:", error);
     }
   }
@@ -210,6 +214,7 @@ class app {
         JSON.stringify(this.completedTasks)
       );
     } catch (error) {
+      alert(error);
       console.error("Failed to save completed tasks:", error);
     }
   }
@@ -218,6 +223,7 @@ class app {
     try {
       localStorage.setItem(STORAGE_KEYS.settings, JSON.stringify(settings));
     } catch (error) {
+      alert(error);
       console.error("Failed to save settings:", error);
     }
   }
@@ -352,6 +358,7 @@ class app {
         }
       }
     } catch (error) {
+      alert(error);
       console.error("Failed to load saved state:", error);
       this.tasks = initialDomTasks;
       this.completedTasks = [];
@@ -405,23 +412,16 @@ class app {
   startTimer() {
     if (this.timerInterval !== null) return;
     setControlsState("running");
-    console.log("start");
-    console.log(this.curLap);
     laps.classList.remove("hidden");
     lapsText.textContent = `${this.curLap}/${this.totalLaps} Lap`;
     this.pause = false;
     pauseBtn.textContent = "Pause";
     this.timerInterval = setInterval(() => {
       this.timeLeft -= 1;
-      if (this.timeLeft < 0) {
-        clearInterval(this.timerInterval);
-        this.timerInterval = null;
-        return;
-      }
 
       this.updateDisplay();
 
-      if (this.timeLeft === 0) {
+      if (this.timeLeft <= 0) {
         clearInterval(this.timerInterval);
         this.timerInterval = null;
         this.controller();
@@ -432,38 +432,50 @@ class app {
   pauseTimer() {
     if (this.pause === null) return;
     if (!this.pause) {
-      console.log("paused");
       clearInterval(this.timerInterval);
       this.timerInterval = null;
       pauseBtn.textContent = "Resume";
       this.pause = true;
     } else {
-      console.log("Resumed");
-      this.startTimer();
+      this.resumeTimer();
     }
   }
 
-  resumeTimer() {}
+  resumeTimer() {
+    this.pause = false;
+    pauseBtn.textContent = "Pause";
+    this.timerInterval = setInterval(() => {
+      this.timeLeft -= 1;
+
+      this.updateDisplay();
+
+      if (this.timeLeft <= 0) {
+        clearInterval(this.timerInterval);
+        this.timerInterval = null;
+        this.controller();
+      }
+    }, 1000);
+  }
 
   resetTimer() {
-    console.log("reset");
     pauseBtn.textContent = "Pause";
     clearInterval(this.timerInterval);
-    // this.timerInterval = null;
-    // this.pause = null;
-    // this.changeMode("focus");
     this.init(
       this.modes.focus,
       this.modes.short,
       this.modes.long,
       this.totalLaps
     );
-    // setControlsState("idle");
   }
 
   addTask() {
     const value = taskTxt.value.trim();
     if (!value) return;
+    if (value.length > 100) {
+      taskTxt.value = "";
+      alert("Only 100 characters are allowed");
+      return;
+    }
 
     const newTask = {
       id: generateId(),
