@@ -1,7 +1,4 @@
 "use strict";
-import "core-js/stable";
-import "regenerator-runtime/runtime";
-
 ///////////////////////////////
 
 const minutesDisplay = document.getElementById("minutes");
