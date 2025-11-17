@@ -5,6 +5,9 @@ node_modules/
 .parcel-cache/
 dist/
 
+Flowchart_Pomodoro.drawio.png
+Architecture.drawio
+
 # Logs
 *.log
 npm-debug.log*
