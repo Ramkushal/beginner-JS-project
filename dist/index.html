@@ -1,0 +1,87 @@
+<!DOCTYPE html><html lang=en><meta charset=UTF-8><meta name=viewport content="width=device-width, initial-scale=1.0"><title>Pomodoro Timer</title><link rel=stylesheet href=/my_first_project.c43e1bd4.css><script type=module src=/my_first_project.f86602a2.js></script><body>
+    <h1 class=main-heading>Pomodoro Timer</h1>
+
+    <main class=container role=main>
+      <div class="hidden laps" id=laps><span id=laps-text>1/2</span></div>
+      <button class=settings-btn type=button aria-label="Open timer settings" aria-haspopup=dialog aria-controls=settings-overlay aria-expanded=false>
+        <svg xmlns:xmlns=http://www.w3.org/2000/svg fill=none stroke=currentColor stroke-width=1.5 class=btn-icon viewBox="0 0 24 24"><path stroke-linecap=round stroke-linejoin=round d="M10.343 3.94c.09-.542.56-.94 1.11-.94h1.093c.55 0 1.02.398 1.11.94l.149.894c.07.424.384.764.78.93.398.164.855.142 1.205-.108l.737-.527a1.125 1.125 0 0 1 1.45.12l.773.774c.39.389.44 1.002.12 1.45l-.527.737c-.25.35-.272.806-.107 1.204s.505.71.93.78l.893.15c.543.09.94.559.94 1.109v1.094c0 .55-.397 1.02-.94 1.11l-.894.149c-.424.07-.764.383-.929.78-.165.398-.143.854.107 1.204l.527.738c.32.447.269 1.06-.12 1.45l-.774.773a1.125 1.125 0 0 1-1.449.12l-.738-.527c-.35-.25-.806-.272-1.203-.107-.398.165-.71.505-.781.929l-.149.894c-.09.542-.56.94-1.11.94h-1.094c-.55 0-1.019-.398-1.11-.94l-.148-.894c-.071-.424-.384-.764-.781-.93-.398-.164-.854-.142-1.204.108l-.738.527c-.447.32-1.06.269-1.45-.12l-.773-.774a1.125 1.125 0 0 1-.12-1.45l.527-.737c.25-.35.272-.806.108-1.204s-.506-.71-.93-.78l-.894-.15c-.542-.09-.94-.56-.94-1.109v-1.094c0-.55.398-1.02.94-1.11l.894-.149c.424-.07.765-.383.93-.78.165-.398.143-.854-.108-1.204l-.526-.738a1.125 1.125 0 0 1 .12-1.45l.773-.773a1.125 1.125 0 0 1 1.45-.12l.737.527c.35.25.807.272 1.204.107s.71-.505.78-.929Z"/><path stroke-linecap=round stroke-linejoin=round d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/></svg>
+      </button>
+
+      
+      <div class=timer role=timer aria-live=polite aria-atomic=true>
+        <span id=minutes>25</span>:<span id=seconds>00</span>
+      </div>
+
+      
+      <div class=controls>
+        <button id=start type=button>Start</button>
+        <button id=pause type=button>Pause</button>
+        <button id=reset type=button>Reset</button>
+      </div>
+
+      
+      <div class=modes role=group aria-label="Timer modes">
+        <button id=focus class=active type=button aria-pressed=true>
+          Focus
+        </button>
+        <button id=short type=button aria-pressed=false>
+          Short Break
+        </button>
+        <button id=long type=button aria-pressed=false>Long Break</button>
+      </div>
+
+      
+      <div class=task-section>
+        <h2>Your Tasks</h2>
+        <ul id=task-list aria-live=polite></ul>
+        <input id=new-task placeholder="Add a new task..." aria-label="Add a new task">
+        <button id=add-task type=button>Add Task</button>
+      </div>
+      <button id=show-completed class=completed-btn type=button aria-haspopup=dialog aria-controls=completed-overlay aria-expanded=false>
+        Completed Tasks
+      </button>
+
+      
+      <footer>
+        <p>Built by <a href=#>Ram Kushal</a></p>
+      </footer>
+    </main>
+    <div class="hidden settings-overlay" id=settings-overlay aria-hidden=true>
+      <div class=settings-modal role=dialog aria-modal=true aria-labelledby=settings-title>
+        <h2 id=settings-title>Timer Settings</h2>
+        <form id=settings-form>
+          <label for=focus-duration>Focus (minutes)</label>
+          <input type=number id=focus-duration name=focus min=1 step=1 required>
+
+          <label for=short-break>Short Break (minutes)</label>
+          <input type=number id=short-break name=short min=1 step=1 required>
+
+          <label for=long-break>Long Break (minutes)</label>
+          <input type=number id=long-break name=long min=1 step=1 required>
+
+          <label for=laps-settings>Laps</label>
+          <input type=number id=laps-settings name=laps min=1 step=1 required>
+
+          <div class=settings-actions>
+            <button type=button id=settings-cancel>Cancel</button>
+            <button>Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div class="completed-overlay hidden" id=completed-overlay aria-hidden=true role=presentation>
+      <div class=completed-modal role=dialog aria-modal=true aria-labelledby=completed-tasks>
+        <div class=completed-modal-header>
+          <h2 id=completed-title>Completed Tasks</h2>
+          <button type=button id=completed-close aria-label="Close completed tasks">
+            ✖️
+          </button>
+        </div>
+        <ul id=completed-list aria-live=polite></ul>
+        <button type=button id=clear-completed aria-label="Clear completed tasks">
+          <span>Clear completed tasks 🗑️</span>
+        </button>
+      </div>
+    </div>
+  
+

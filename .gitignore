@@ -2,8 +2,8 @@
 node_modules/
 
 # Parcel cache and build directories
-.parcel-cache/
-dist/
+# .parcel-cache/
+# dist/
 
 Flowchart_Pomodoro.drawio.png
 Architecture.drawio
